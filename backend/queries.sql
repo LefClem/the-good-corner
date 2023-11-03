@@ -11,6 +11,12 @@ category VARCHAR(100),
 createdAt DATE
 )
 
+CREATE TABLE tag
+(
+id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+name VARCHAR(50) NOT NULL
+)
+
 ALTER TABLE Ad ADD COLUMN category_id INTEGER;
 
 UPDATE ad
@@ -30,7 +36,7 @@ name VARCHAR(100) NOT NULL
 DROP TABLE ad;
 
 INSERT INTO category (name) 
-VALUES ("voiture"), ("vêtement"), ("autres"); 
+VALUES ("voiture"), ("vêtement"), ("immobilier"), ("meuble"), ("jeux video"), ("autres"); 
 
 INSERT INTO ad (title, description, owner, price, picture, location, category, createdAt) VALUES
 ('Test', 'Test', 'test@mail.com', 2200, 'www.test.com', 'Bordeaux', 'voiture', '03-09-2023'),
@@ -79,9 +85,34 @@ FROM ad
 JOIN category ON ad.category_id = category.id
 WHERE category.name = "autres";
 
-
 SELECT *
 FROM ad
 JOIN category ON ad.category_id = category.id
 WHERE category.name LIKE "v%";
 
+INSERT INTO tag (name) VALUES ('furniture');
+INSERT INTO tag (name) VALUES ('clothing');
+INSERT INTO tag (name) VALUES ('electronics');
+INSERT INTO tag (name) VALUES ('cars');
+INSERT INTO tag (name) VALUES ('books');
+INSERT INTO tag (name) VALUES ('other');
+
+
+INSERT INTO category (name) VALUES
+('Ameublement'),
+('Electroménager'),
+('Photographie'),
+('Informatique'),
+('Téléphonie'),
+('Vélos'),
+('Véhicules'),
+('Sport'),
+('Habillement'),
+('Bébé'),
+('Outillage'),
+('Services'),
+('Vacances');
+
+SELECT * FROM category;
+
+DELETE FROM ad;

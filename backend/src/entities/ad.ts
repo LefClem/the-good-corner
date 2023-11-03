@@ -1,32 +1,71 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Category } from "./category";
+import { Tag } from "./tag";
+import { Field, ObjectType } from "type-graphql";
 
+@ObjectType()
 @Entity()
-export class Ad extends BaseEntity{
+export class Ad extends BaseEntity {
     @PrimaryGeneratedColumn()
+    @Field()
     id: number;
 
-    @Column({length: 100})
+    @Column({ length: 100 })
+    @Field()
     title: string;
 
     @Column()
+    @Field()
     description: string;
 
     @Column()
+    @Field()
     owner: string;
 
     @Column()
+    @Field()
     price: number;
-    
+
     @Column()
+    @Field()
     picture: string;
 
     @Column()
+    @Field()
     location: string;
 
     @Column()
-    createdAt: Date;
+    @Field()
+    createdAt?: Date;
+
+    @ManyToOne(() => Category, category => category.ad)
+    category?: Category;
+
+    @ManyToMany(() => Tag, {
+        cascade: ["insert"]
+    })
+    @JoinTable()
+    tags?: Tag[]
+
+
+    constructor(datas: {
+        title: string,
+        description: string,
+        owner: string,
+        price: number,
+        picture: string,
+        location: string,
+    } | null = null) {
+        super();
+        if (datas) {
+            this.title = datas.title;
+            this.description = datas.description;
+            this.owner = datas.owner;
+            this.price = datas.price;
+            this.picture = datas.picture;
+            this.location = datas.location;
+            this.createdAt = new Date();
+        }
+    }
 }
-
-
-
 

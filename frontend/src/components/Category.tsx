@@ -9,7 +9,7 @@ type CategoryProps = {
 function Category({ category } : CategoryProps) {
   return (
     <>
-      <Link href={`/category/${category.id}`} className="category-navigation-link">{category.name}</Link>    
+      <Link href={`/?category=${category.id}`} className="category-navigation-link">{category.name}</Link>    
     </>
   )
 }

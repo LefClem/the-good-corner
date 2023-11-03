@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import Category from '@/components/Category'
 import { CategoryType } from '@/types/category.type';
-import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useQuery, gql } from '@apollo/client';
+import { useSearchParams } from 'next/navigation';
+
+const GET_CATEGORIES = gql`
+query Categories {
+    categories {
+        id
+      name
+    }
+  }
+`
 
 function Header() {
+    const [search, setSearch] = useState<string>("");
+    const { loading, error, data } = useQuery(GET_CATEGORIES);
     const router = useRouter();
-    const [categories, setCategories] = useState<CategoryType[]>([]);
-    const [search, setSearch] = useState<string>();
+    const searchParams = useSearchParams();
+    const categoryId = searchParams.get("category") ?? "";
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            const response = await axios.get<CategoryType[]>('http://localhost:3001/categories?terms=');
-            setCategories(response.data)
-        }
-        fetchCategories();
-    }, [categories])
+    if(loading) return <p>Loading...</p>;
+    if(error) return `Erreur : ${error}`;        
 
-    const handleSearch = async (e) => {
+    const searchByName = async (e: FormEvent) => {
         e.preventDefault();
 
-        setSearch(e.target.value)        
-    }
-
-    const searchByName = async (e) => {
-        e.preventDefault();
-
-        router.push(`/ads/search/${search}`)
+        router.push(`/?search=${search}&category=${categoryId}`)
     }
 
     return (
@@ -39,9 +40,9 @@ function Header() {
                         <span className="desktop-long-label">THE GOOD CORNER</span></a>
                 </h1>
 
-                <form className="text-field-with-button">
-                    <input className="text-field main-search-field" type="search" onChange={(e) => handleSearch(e)}/>
-                    <button className="button button-primary" onClick={(e) => searchByName(e)}>
+                <form className="text-field-with-button" onSubmit={searchByName}>
+                    <input className="text-field main-search-field" type="search" onChange={(e) => setSearch(e.target.value)}/>
+                    <button className="button button-primary">
                         <svg
                             aria-hidden="true"
                             width="16"
@@ -68,7 +69,7 @@ function Header() {
 
             </div>
             <nav className="categories-navigation">
-                {categories.map((category) => (
+                {data.categories.map((category: CategoryType) => (
                     <Category key={category.id} category={category} />
                 ))}
             </nav>

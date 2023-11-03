@@ -1,0 +1,45 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - 3001:3001
+    volumes:
+      - ./backend/good-corner.sqlite:/app/good-corner.sqlite:rw
+      - ./backend/src:/app/src:rw
+
+  frontend:
+    build: ./frontend
+    command: npm run dev
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/app/src:rw
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: clement
+      POSTGRES_PASSWORD: Klapaucius972!
+      POSTGRES_DB: goodcorner
+      PGDATA: customDataFolder
+    volumes:
+      - ./dbData:/var/lib/postgresql/data/customDataFolder
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d goodcorner -U clement"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  images:
+    build: ./images
+    volumes:
+      - ./images/src:/app/src
+      - ./images/uploads:/app/uploads
+    ports:
+      - 8000:8000
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
