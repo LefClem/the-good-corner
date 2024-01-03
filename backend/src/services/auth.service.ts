@@ -13,7 +13,7 @@ export function verifyToken(token: string) {
 export async function login(email: string, password: string): Promise<String>{
     try {
         const userFromDb = await UserService.getUserEmail(email);
-        if(await argon2.verify(password, userFromDb.password)){
+        if(await argon2.verify(userFromDb.password, password)){
             const token = signJwt({
                 email: userFromDb.email,
                 role: userFromDb.roles
@@ -26,7 +26,6 @@ export async function login(email: string, password: string): Promise<String>{
     } catch (error) {
         throw new Error ("Invalid Auth");
     }
-
 }
 
 export function signJwt(payload: any) {

@@ -5,17 +5,59 @@ import { CategoryResolver } from './resolvers/category.resolver';
 import { ApolloServer } from "apollo-server";
 import { AdResolver } from "./resolvers/ad.resolver";
 import { UserResolver } from "./resolvers/user.resolver";
+import { verifyToken } from "./services/auth.service";
+import { getUserEmail } from "./services/user.service";
+import * as dotenv from 'dotenv';
 
 const port: number = 3001;
 
 const start = async () => {
+    dotenv.config()
     await dataSource.initialize();
     const schema = await buildSchema({
         resolvers: [CategoryResolver, AdResolver, UserResolver],
-        validate: { forbidUnknownValues : false}
+        validate: { forbidUnknownValues : false},
+        authChecker: async ({ context }, roles) => {
+            try {
+              const payload: any = verifyToken(context.token);
+              const userFromDB = await getUserEmail(payload.email);
+              context.user = userFromDB;
+                
+                console.log(payload);
+
+              if (roles.length >= 1) {
+                if (roles.includes(context.user.role)) {
+                  return true;
+                }
+                else {
+                  return false;
+                }
+              }
+      
+              return true;
+            } catch(e) {
+              return false;
+            }
+          }
     });
     const server = new ApolloServer({
-        schema
+        schema,
+        context: ({ req }) => {
+            if (
+              req?.headers.authorization === undefined ||
+              process.env.JWT_SECRET_KEY === undefined
+            ) {
+              return {};
+            } else {
+              try {
+                const bearer = req.headers.authorization.split("Bearer ")[1];
+                return { token: bearer };
+              } catch (e) {
+                console.log(e);
+                return {};
+              }
+            }
+          },
     });
     
     try {

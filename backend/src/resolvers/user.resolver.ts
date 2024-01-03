@@ -18,6 +18,9 @@ export class UserResolver {
         @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<String> {
-        return AuthService.login(email, password);
-    }
+        try {
+            return AuthService.login(email, password);
+          } catch (e) {
+            throw new Error("Invalid Auth");
+          }    }
 }
