@@ -6,6 +6,7 @@ services:
     volumes:
       - ./backend/good-corner.sqlite:/app/good-corner.sqlite:rw
       - ./backend/src:/app/src:rw
+      - ./backend/.env:/app/.env
 
   frontend:
     build: ./frontend
