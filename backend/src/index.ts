@@ -22,8 +22,6 @@ const start = async () => {
               const payload: any = verifyToken(context.token);
               const userFromDB = await getUserEmail(payload.email);
               context.user = userFromDB;
-                
-                console.log(payload);
 
               if (roles.length >= 1) {
                 if (roles.includes(context.user.role)) {
