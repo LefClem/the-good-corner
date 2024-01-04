@@ -16,55 +16,60 @@ const start = async () => {
     await dataSource.initialize();
     const schema = await buildSchema({
         resolvers: [CategoryResolver, AdResolver, UserResolver],
-        validate: { forbidUnknownValues : false},
+        validate: { forbidUnknownValues: false },
         authChecker: async ({ context }, roles) => {
             try {
-              const payload: any = verifyToken(context.token);
-              const userFromDB = await getUserEmail(payload.email);
-              context.user = userFromDB;
+                const payload: any = verifyToken(context.token);
+                const userFromDB = await getUserEmail(payload.email);
+                context.user = userFromDB;
 
-              if (roles.length >= 1) {
-                if (roles.includes(context.user.role)) {
-                  return true;
+                if (roles.length >= 1) {
+                    if (roles.includes(context.user.role)) {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
                 }
-                else {
-                  return false;
-                }
-              }
-      
-              return true;
-            } catch(e) {
-              return false;
+
+                return true;
+            } catch (e) {
+                return false;
             }
-          }
+        }
     });
     const server = new ApolloServer({
         schema,
-        context: ({ req }) => {
+        context: async ({ req }) => {
             if (
-              req?.headers.authorization === undefined ||
-              process.env.JWT_SECRET_KEY === undefined
+                req?.headers.authorization === undefined ||
+                process.env.JWT_SECRET_KEY === undefined
             ) {
-              return {};
-            } else {
-              try {
-                const bearer = req.headers.authorization.split("Bearer ")[1];
-                return { token: bearer };
-              } catch (e) {
-                console.log(e);
                 return {};
-              }
+            } else {
+                try {
+                    const bearer = req.headers.authorization.split("Bearer ")[1];
+                    const payload: any = verifyToken(bearer);
+                    const userFromDB = await getUserEmail(payload.email);
+                    return {
+                        token: bearer,
+                        user: userFromDB,
+                    };
+                } catch (e) {
+                    console.log(e);
+                    return {};
+                }
             }
-          },
+        },
     });
-    
+
     try {
-        const {url} = await server.listen({ port })
+        const { url } = await server.listen({ port })
         console.log(`Server running at ${url}`);
-        
+
     } catch (error) {
         console.error("Error starting server");
-        
+
     }
 }
 

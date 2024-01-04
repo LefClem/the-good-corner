@@ -47,9 +47,10 @@ export async function create(adsData: {
     location: string,
     categoryId: number,
     tags: string[]
-  }): Promise<Ad> {
+  }, ctx: any): Promise<Ad> {
     const ad = new Ad(adsData);
     const category = await Category.findOneBy({id: adsData.categoryId});
+    ad.owner = ctx.user.email;
   
     if (category) {
       ad.category = category;
@@ -74,12 +75,17 @@ export async function create(adsData: {
     return ad.save();
   }
 
-export async function update(id: number, ad: Ad, categoryId: number): Promise<Ad | undefined>{
+export async function update(id: number, ad: Ad, categoryId: number, ctx: any): Promise<Ad | undefined>{
     const adToUpdate = await findAdById(id);
-
+    
     if(!adToUpdate){
         throw new Error("Ad not found");
     }
+    
+    if(adToUpdate?.owner !== ctx.user.email && ctx.user.roles !== "ADMIN"){
+        throw new Error("Not authorized")
+    } else
+
 
     if(adToUpdate){
         adToUpdate.title = ad.title;
