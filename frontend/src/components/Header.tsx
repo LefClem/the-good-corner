@@ -21,6 +21,7 @@ function Header() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const categoryId = searchParams.get("category") ?? "";
+    const token = localStorage.getItem("token");
 
     if(loading) return <p>Loading...</p>;
     if(error) return `Erreur : ${error}`;        
@@ -29,6 +30,13 @@ function Header() {
         e.preventDefault();
 
         router.push(`/?search=${search}&category=${categoryId}`)
+    }
+
+    const logout = (e: any) => {
+        e.preventDefault();
+
+        localStorage.removeItem("token");
+        router.push('/login')
     }
 
     return (
@@ -67,6 +75,8 @@ function Header() {
                     <span className="desktop-long-label">Publier une annonce</span>
                 </Link>
 
+                {token && <span className="button" onClick={(e) => logout(e)}>Déconnexion</span>}
+                {!token && <span className="button" onClick={() => router.push('/login')}>Connexion</span>}
             </div>
             <nav className="categories-navigation">
                 {data.categories.map((category: CategoryType) => (

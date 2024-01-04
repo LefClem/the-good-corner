@@ -13,10 +13,11 @@ export function verifyToken(token: string) {
 export async function login(email: string, password: string): Promise<String>{
     try {
         const userFromDb = await UserService.getUserEmail(email);
+        console.log(userFromDb)
         if(await argon2.verify(userFromDb.password, password)){
             const token = signJwt({
                 email: userFromDb.email,
-                role: userFromDb.roles
+                role: userFromDb.roles,
             })
 
             return token;

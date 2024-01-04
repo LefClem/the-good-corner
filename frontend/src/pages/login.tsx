@@ -13,14 +13,7 @@ export default function Login() {
     const [email, setEmail] = useState<String>();
     const [password, setPassword] = useState<String>();
 
-    const token = localStorage.getItem("token");
-
-    // useEffect(() => {
-    //     if(token){
-    //         router.push('/')
-    //     }
-    // })
-
+    // const token = localStorage.getItem("token");
     const [loggedIn] = useMutation(LOGIN, {
         variables: {
             email: email,

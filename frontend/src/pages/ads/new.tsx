@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import Category from '@/components/Category';
 import { useRouter } from 'next/router'
 import { gql, useMutation, useQuery } from '@apollo/client';
+import isAuth from "@/components/secure/isAuth";
+
 
 
 const NewAdForm = styled.form`
@@ -47,6 +49,13 @@ function NewAd() {
   const [createAd] = useMutation(CREATE_NEW_AD);
   const [file, setFile] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>();
+  const token = localStorage.getItem("token");
+  
+  useEffect(() => {
+    if(!token){
+      router.push('/login')
+    }
+  })
 
   if (loading) return <p>Loading...</p>;
   if (error) return `Erreur : ${error}`;
@@ -137,4 +146,4 @@ function NewAd() {
   )
 }
 
-export default NewAd;
+export default isAuth(NewAd);
